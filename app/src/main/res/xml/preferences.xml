@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="通知">
+        <SeekBarPreference
+            android:key="pref_auto_dismiss_seconds"
+            android:title="自動消去時間（秒）"
+            android:summary="通知が自動で消えるまでの秒数（0で消去なし）"
+            android:defaultValue="30"
+            app:min="0"
+            android:max="120" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="表示するボタン">
+        <SwitchPreferenceCompat
+            android:key="pref_show_google"
+            android:title="Google検索"
+            android:defaultValue="true" />
+        <SwitchPreferenceCompat
+            android:key="pref_show_youtube"
+            android:title="YouTube"
+            android:defaultValue="true" />
+        <SwitchPreferenceCompat
+            android:key="pref_show_wikipedia"
+            android:title="Wikipedia"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="通知チャンネル">
+        <Preference
+            android:key="pref_notification_channel"
+            android:title="通知の詳細設定"
+            android:summary="重要度・サウンド等を変更（Android設定へ）" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
