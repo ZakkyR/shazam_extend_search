@@ -20,7 +20,10 @@ object NotificationHelper {
     private const val DEBUG_NOTIFICATION_ID = 1001
     const val SHORTCUT_NOTIFICATION_ID = 1002
 
-    private var pendingIntentCounter = 0
+    private const val PI_GOOGLE    = 100
+    private const val PI_YOUTUBE   = 101
+    private const val PI_WIKIPEDIA = 102
+
     private val dismissHandler by lazy { Handler(Looper.getMainLooper()) }
     private var dismissRunnable: Runnable? = null
 
@@ -90,26 +93,29 @@ object NotificationHelper {
         if (showGoogle) {
             builder.addAction(
                 0, "Google検索",
-                buildBrowserIntent(context, "https://www.google.com/search?q=$query")
+                buildBrowserIntent(context, "https://www.google.com/search?q=$query", PI_GOOGLE)
             )
         }
         if (showYoutube) {
             builder.addAction(
                 0, "YouTube",
-                buildBrowserIntent(context, "https://www.youtube.com/results?search_query=$query")
+                buildBrowserIntent(context, "https://www.youtube.com/results?search_query=$query", PI_YOUTUBE)
             )
         }
         if (showWikipedia) {
             builder.addAction(
                 0, "Wikipedia",
-                buildBrowserIntent(context, "https://ja.wikipedia.org/wiki/Special:Search?search=$query")
+                buildBrowserIntent(context, "https://ja.wikipedia.org/wiki/Special:Search?search=$query", PI_WIKIPEDIA)
             )
         }
 
         nm.notify(SHORTCUT_NOTIFICATION_ID, builder.build())
 
+        // 常に前回のタイマーをキャンセル
+        dismissRunnable?.let { dismissHandler.removeCallbacks(it) }
+        dismissRunnable = null
+
         if (autoDismissSeconds > 0) {
-            dismissRunnable?.let { dismissHandler.removeCallbacks(it) }
             val runnable = Runnable { nm.cancel(SHORTCUT_NOTIFICATION_ID) }
             dismissRunnable = runnable
             dismissHandler.postDelayed(runnable, autoDismissSeconds * 1000L)
@@ -123,11 +129,11 @@ object NotificationHelper {
         return URLEncoder.encode(combined, "UTF-8")
     }
 
-    private fun buildBrowserIntent(context: Context, url: String): PendingIntent {
+    private fun buildBrowserIntent(context: Context, url: String, requestCode: Int): PendingIntent {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         return PendingIntent.getActivity(
             context.applicationContext,
-            pendingIntentCounter++,
+            requestCode,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
