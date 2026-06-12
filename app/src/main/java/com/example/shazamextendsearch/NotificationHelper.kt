@@ -20,6 +20,10 @@ object NotificationHelper {
     private const val DEBUG_NOTIFICATION_ID = 1001
     const val SHORTCUT_NOTIFICATION_ID = 1002
 
+    private var pendingIntentCounter = 0
+    private val dismissHandler by lazy { Handler(Looper.getMainLooper()) }
+    private var dismissRunnable: Runnable? = null
+
     fun createChannels(context: Context) {
         val nm = context.getSystemService<NotificationManager>() ?: return
 
@@ -105,9 +109,10 @@ object NotificationHelper {
         nm.notify(SHORTCUT_NOTIFICATION_ID, builder.build())
 
         if (autoDismissSeconds > 0) {
-            Handler(Looper.getMainLooper()).postDelayed({
-                nm.cancel(SHORTCUT_NOTIFICATION_ID)
-            }, autoDismissSeconds * 1000L)
+            dismissRunnable?.let { dismissHandler.removeCallbacks(it) }
+            val runnable = Runnable { nm.cancel(SHORTCUT_NOTIFICATION_ID) }
+            dismissRunnable = runnable
+            dismissHandler.postDelayed(runnable, autoDismissSeconds * 1000L)
         }
     }
 
@@ -121,8 +126,8 @@ object NotificationHelper {
     private fun buildBrowserIntent(context: Context, url: String): PendingIntent {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         return PendingIntent.getActivity(
-            context,
-            url.hashCode(),
+            context.applicationContext,
+            pendingIntentCounter++,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
