@@ -27,5 +27,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
             startActivity(intent)
             true
         }
+
+        findPreference<Preference>("pref_version")?.summary = BuildConfig.VERSION_NAME
+
+        findPreference<Preference>("pref_check_update")?.setOnPreferenceClickListener {
+            (activity as? MainActivity)?.checkForUpdateManually()
+            true
+        }
     }
 }

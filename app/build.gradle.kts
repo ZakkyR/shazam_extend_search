@@ -1,5 +1,12 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
+}
+
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps = Properties().apply {
+    if (keystorePropsFile.exists()) load(keystorePropsFile.inputStream())
 }
 
 android {
@@ -20,13 +27,32 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = (keystoreProps["storeFile"] as? String
+                ?: System.getenv("STORE_FILE"))?.let { file(it) }
+            storePassword = keystoreProps["storePassword"] as? String
+                ?: System.getenv("STORE_PASSWORD") ?: ""
+            keyAlias = keystoreProps["keyAlias"] as? String
+                ?: System.getenv("KEY_ALIAS") ?: ""
+            keyPassword = keystoreProps["keyPassword"] as? String
+                ?: System.getenv("KEY_PASSWORD") ?: ""
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
     buildTypes {
         release {
             optimization {
                 enable = false
             }
+            signingConfig = signingConfigs.getByName("release")
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

@@ -43,4 +43,15 @@
             android:summary="重要度・サウンド等を変更（Android設定へ）" />
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="アプリ情報">
+        <Preference
+            android:key="pref_check_update"
+            android:title="アップデートを確認"
+            android:summary="最新バージョンを確認します" />
+        <Preference
+            android:key="pref_version"
+            android:title="バージョン"
+            android:selectable="false" />
+    </PreferenceCategory>
+
 </PreferenceScreen>
