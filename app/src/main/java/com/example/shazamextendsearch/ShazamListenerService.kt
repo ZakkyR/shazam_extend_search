@@ -23,6 +23,8 @@ class ShazamListenerService : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val pkg = sbn.packageName
         if (pkg !in SHAZAM_PACKAGES) return
+        // 「聞き取り中」などの常駐通知（FLAG_ONGOING_EVENT）は無視する
+        if (sbn.isOngoing) return
 
         val extras = sbn.notification.extras
         val title   = extras.getString(Notification.EXTRA_TITLE)    ?: ""
@@ -38,7 +40,6 @@ class ShazamListenerService : NotificationListenerService() {
 
         NotificationHelper.postDebugNotification(this, title, text, subText)
 
-        // TODO: 実機確認後にここを調整（曲名/アーティストのパース）
         val songName   = title
         val artistName = text
 
