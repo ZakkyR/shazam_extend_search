@@ -9,7 +9,8 @@
             android:summary="通知が自動で消えるまでの秒数（0で消去なし）"
             android:defaultValue="30"
             app:min="0"
-            android:max="120" />
+            android:max="120"
+            app:showSeekBarValue="true" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="表示するボタン">
