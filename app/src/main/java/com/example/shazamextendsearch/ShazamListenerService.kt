@@ -40,12 +40,14 @@ class ShazamListenerService : NotificationListenerService() {
             Intent(BROADCAST_ACTION).putExtra(EXTRA_DEBUG_TEXT, debugText)
         )
 
-        NotificationHelper.postDebugNotification(this, title, text, subText)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        if (prefs.getBoolean("pref_show_debug_notification", false)) {
+            NotificationHelper.postDebugNotification(this, title, text, subText)
+        }
 
         val songName   = title
         val artistName = text
 
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         NotificationHelper.postShortcutNotification(
             context           = this,
             songName          = songName,

@@ -27,6 +27,14 @@
             android:defaultValue="true" />
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="開発者向け">
+        <SwitchPreferenceCompat
+            android:key="pref_show_debug_notification"
+            android:title="デバッグ通知を表示"
+            android:summary="通知の内容をそのまま通知バーに表示します"
+            android:defaultValue="false" />
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="通知チャンネル">
         <Preference
             android:key="pref_notification_channel"
