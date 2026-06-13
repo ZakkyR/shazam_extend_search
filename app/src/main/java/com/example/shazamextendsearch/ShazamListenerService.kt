@@ -31,6 +31,8 @@ class ShazamListenerService : NotificationListenerService() {
         val text    = extras.getString(Notification.EXTRA_TEXT)     ?: ""
         val subText = extras.getString(Notification.EXTRA_SUB_TEXT) ?: ""
 
+        if (title.isBlank() && text.isBlank()) return
+
         Log.d(TAG, "pkg=$pkg title=$title text=$text sub=$subText")
 
         val debugText = "pkg=$pkg\ntitle=$title\ntext=$text\nsub=$subText"
