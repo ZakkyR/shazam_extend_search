@@ -25,6 +25,11 @@ class ShazamListenerService : NotificationListenerService() {
         return START_STICKY
     }
 
+    override fun onListenerConnected() {
+        super.onListenerConnected()
+        Log.d(TAG, "通知リスナー接続済み")
+    }
+
     override fun onListenerDisconnected() {
         requestRebind(ComponentName(this, ShazamListenerService::class.java))
     }
