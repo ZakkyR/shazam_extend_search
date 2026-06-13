@@ -21,8 +21,21 @@ class ShazamListenerService : NotificationListenerService() {
         const val EXTRA_DEBUG_TEXT = "debug_text"
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_STICKY
+    }
+
     override fun onListenerDisconnected() {
         requestRebind(ComponentName(this, ShazamListenerService::class.java))
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        // アプリをスワイプで閉じたときにシステムへ再接続を要求する
+        requestRebind(ComponentName(this, ShazamListenerService::class.java))
+        val restart = Intent(applicationContext, ShazamListenerService::class.java)
+        restart.setPackage(packageName)
+        startService(restart)
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
