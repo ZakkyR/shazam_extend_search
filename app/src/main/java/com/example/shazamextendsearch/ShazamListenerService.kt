@@ -1,6 +1,7 @@
 package com.example.shazamextendsearch
 
 import android.app.Notification
+import android.content.ComponentName
 import android.content.Intent
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -18,6 +19,10 @@ class ShazamListenerService : NotificationListenerService() {
         )
         const val BROADCAST_ACTION = "com.example.shazamextendsearch.SHAZAM_DEBUG"
         const val EXTRA_DEBUG_TEXT = "debug_text"
+    }
+
+    override fun onListenerDisconnected() {
+        requestRebind(ComponentName(this, ShazamListenerService::class.java))
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
