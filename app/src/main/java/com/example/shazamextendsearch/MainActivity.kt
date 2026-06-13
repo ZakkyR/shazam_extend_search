@@ -7,14 +7,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -86,48 +84,7 @@ class MainActivity : AppCompatActivity() {
         if (System.currentTimeMillis() - lastCheck < oneDayMs) return
 
         prefs.edit().putLong("last_update_check_ms", System.currentTimeMillis()).apply()
-        UpdateChecker.checkAsync(BuildConfig.VERSION_NAME) { result ->
-            if (result is UpdateChecker.Result.Available) {
-                showUpdateDialog(result.tag)
-            }
-        }
-    }
-
-    fun checkForUpdateManually() {
-        UpdateChecker.checkAsync(BuildConfig.VERSION_NAME) { result ->
-            when (result) {
-                is UpdateChecker.Result.Available -> showUpdateDialog(result.tag)
-                UpdateChecker.Result.UpToDate -> showUpToDateDialog()
-                UpdateChecker.Result.Error -> showUpdateErrorDialog()
-            }
-        }
-    }
-
-    private fun showUpdateDialog(tag: String) {
-        AlertDialog.Builder(this)
-            .setTitle("アップデートがあります")
-            .setMessage("$tag が利用可能です。ダウンロードページを開きますか？")
-            .setPositiveButton("開く") { _, _ ->
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(UpdateChecker.RELEASES_URL)))
-            }
-            .setNegativeButton("後で", null)
-            .show()
-    }
-
-    private fun showUpToDateDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("最新版です")
-            .setMessage("${BuildConfig.VERSION_NAME} は最新バージョンです。")
-            .setPositiveButton("OK", null)
-            .show()
-    }
-
-    private fun showUpdateErrorDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("確認できませんでした")
-            .setMessage("アップデートの確認に失敗しました。ネットワーク接続を確認してください。")
-            .setPositiveButton("OK", null)
-            .show()
+        UpdateChecker.checkAndShowDialog(this, BuildConfig.VERSION_NAME, showUpToDate = false)
     }
 
     private fun updatePermissionStatus() {

@@ -1,7 +1,11 @@
 package com.example.shazamextendsearch
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import androidx.appcompat.app.AlertDialog
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -46,6 +50,36 @@ object UpdateChecker {
             }
             handler.post { onResult(result) }
         }.start()
+    }
+
+    // アップデート確認 + ダイアログ表示をまとめて行うユーティリティ
+    // showUpToDate = true のとき最新版・エラー時もダイアログを表示する（手動チェック用）
+    fun checkAndShowDialog(activity: Activity, currentVersion: String, showUpToDate: Boolean) {
+        checkAsync(currentVersion) { result ->
+            if (activity.isFinishing || activity.isDestroyed) return@checkAsync
+            when (result) {
+                is Result.Available -> AlertDialog.Builder(activity)
+                    .setTitle("アップデートがあります")
+                    .setMessage("${result.tag} が利用可能です。ダウンロードページを開きますか？")
+                    .setPositiveButton("開く") { _, _ ->
+                        activity.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse(RELEASES_URL))
+                        )
+                    }
+                    .setNegativeButton("後で", null)
+                    .show()
+                Result.UpToDate -> if (showUpToDate) AlertDialog.Builder(activity)
+                    .setTitle("最新版です")
+                    .setMessage("$currentVersion は最新バージョンです。")
+                    .setPositiveButton("OK", null)
+                    .show()
+                Result.Error -> if (showUpToDate) AlertDialog.Builder(activity)
+                    .setTitle("確認できませんでした")
+                    .setMessage("アップデートの確認に失敗しました。ネットワーク接続を確認してください。")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+        }
     }
 
     private fun isNewer(current: String, latest: String): Boolean {
