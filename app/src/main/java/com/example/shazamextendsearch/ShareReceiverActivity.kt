@@ -45,8 +45,10 @@ class ShareReceiverActivity : AppCompatActivity() {
     }
 
     // "宇多田ヒカルのOne Last Kiss https://..." → Pair("One Last Kiss", "宇多田ヒカル")
+    // "水曜日のカンパネラのKOKYU https://..." → Pair("水曜日のカンパネラのKOKYU", "")  ← のが2つ以上は全体を使う
     private fun parseShazamShare(text: String): Pair<String, String> {
         val withoutUrl = text.replace(Regex("""https?://\S+"""), "").trim()
+        if (withoutUrl.count { it == 'の' } >= 2) return Pair(withoutUrl, "")
         val parts = withoutUrl.split("の", limit = 2)
         return if (parts.size == 2 && parts[0].isNotBlank() && parts[1].isNotBlank()) {
             Pair(parts[1].trim(), parts[0].trim())
