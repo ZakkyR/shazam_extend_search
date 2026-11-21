@@ -1,15 +1,19 @@
 package com.example.shazamextendsearch
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 
 object NotificationHelper {
@@ -54,6 +58,12 @@ object NotificationHelper {
     fun postDebugNotification(context: Context, title: String, text: String, subText: String) {
         val nm = NotificationManagerCompat.from(context)
         if (!nm.areNotificationsEnabled()) return
+        // Android 13 以降は POST_NOTIFICATIONS の実行時権限を明示的に確認する
+        // （13 未満には存在しない権限で常に未許可扱いになるため、バージョンで分岐する）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) return
         val notification = NotificationCompat.Builder(context, CHANNEL_DEBUG)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("Shazam通知受信")
@@ -80,6 +90,12 @@ object NotificationHelper {
 
         val nm = NotificationManagerCompat.from(context)
         if (!nm.areNotificationsEnabled()) return
+        // Android 13 以降は POST_NOTIFICATIONS の実行時権限を明示的に確認する
+        // （13 未満には存在しない権限で常に未許可扱いになるため、バージョンで分岐する）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) return
 
         val query = SearchUrls.joinTerms(songName, artistName)
         val builder = NotificationCompat.Builder(context, CHANNEL_SHORTCUT)
