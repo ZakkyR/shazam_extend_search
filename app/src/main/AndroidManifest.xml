@@ -5,6 +5,16 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- 再生元アプリ名を表示するためのパッケージ可視性（権限ではない） -->
+    <queries>
+        <intent>
+            <action android:name="android.media.browse.MediaBrowserService" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MEDIA_BUTTON" />
+        </intent>
+    </queries>
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -29,18 +39,27 @@
             android:name=".SettingsActivity"
             android:exported="false" />
 
+        <!-- 検索シート（タイル・アプリ本体・共有から共通で使う） -->
         <activity
-            android:name=".ShareReceiverActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Material3.DayNight.Dialog"
+            android:name=".SearchSheetActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Shazam_extend_search.Sheet"
             android:excludeFromRecents="true"
-            android:label="Shazam検索ショートカット">
+            android:taskAffinity=""
+            android:label="曲を検索" />
+
+        <!-- 共有メニューの受け口。既存のコンポーネント名を保つためエイリアスにしている -->
+        <activity-alias
+            android:name=".ShareReceiverActivity"
+            android:targetActivity=".SearchSheetActivity"
+            android:exported="true"
+            android:label="曲検索ショートカット">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
-        </activity>
+        </activity-alias>
 
         <service
             android:name=".ShazamListenerService"
@@ -49,6 +68,17 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".NowPlayingTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_music"
+            android:label="曲を検索"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
 

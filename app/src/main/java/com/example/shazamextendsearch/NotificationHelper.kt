@@ -1,17 +1,20 @@
 package com.example.shazamextendsearch
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
-import java.net.URLEncoder
 
 object NotificationHelper {
 
@@ -55,6 +58,12 @@ object NotificationHelper {
     fun postDebugNotification(context: Context, title: String, text: String, subText: String) {
         val nm = NotificationManagerCompat.from(context)
         if (!nm.areNotificationsEnabled()) return
+        // Android 13 以降は POST_NOTIFICATIONS の実行時権限を明示的に確認する
+        // （13 未満には存在しない権限で常に未許可扱いになるため、バージョンで分岐する）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) return
         val notification = NotificationCompat.Builder(context, CHANNEL_DEBUG)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("Shazam通知受信")
@@ -81,11 +90,17 @@ object NotificationHelper {
 
         val nm = NotificationManagerCompat.from(context)
         if (!nm.areNotificationsEnabled()) return
+        // Android 13 以降は POST_NOTIFICATIONS の実行時権限を明示的に確認する
+        // （13 未満には存在しない権限で常に未許可扱いになるため、バージョンで分岐する）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) return
 
-        val query = buildQuery(songName, artistName)
+        val query = SearchUrls.joinTerms(songName, artistName)
         val builder = NotificationCompat.Builder(context, CHANNEL_SHORTCUT)
             .setSmallIcon(android.R.drawable.ic_menu_search)
-            .setSubText("Shazam検索ショートカット")
+            .setSubText("曲検索ショートカット")
             .setContentTitle(songName)
             .setContentText(artistName)
             .setLocalOnly(true)
@@ -95,19 +110,19 @@ object NotificationHelper {
         if (showGoogle) {
             builder.addAction(
                 0, "Google検索",
-                buildBrowserIntent(context, "https://www.google.com/search?q=$query", PI_GOOGLE)
+                buildBrowserIntent(context, SearchUrls.google(query), PI_GOOGLE)
             )
         }
         if (showYoutube) {
             builder.addAction(
                 0, "YouTube",
-                buildBrowserIntent(context, "https://www.youtube.com/results?search_query=$query", PI_YOUTUBE)
+                buildBrowserIntent(context, SearchUrls.youtube(query), PI_YOUTUBE)
             )
         }
         if (showWikipedia) {
             builder.addAction(
                 0, "Wikipedia",
-                buildBrowserIntent(context, "https://ja.wikipedia.org/wiki/Special:Search?search=$query", PI_WIKIPEDIA)
+                buildBrowserIntent(context, SearchUrls.wikipedia(query), PI_WIKIPEDIA)
             )
         }
 
@@ -124,12 +139,9 @@ object NotificationHelper {
         }
     }
 
-    fun buildQuery(songName: String, artistName: String): String {
-        val combined = listOf(songName, artistName)
-            .filter { it.isNotBlank() }
-            .joinToString(" ")
-        return URLEncoder.encode(combined, "UTF-8")
-    }
+    // URLエンコード済みのクエリを返す（互換用。URL組み立ては SearchUrls を使う）
+    fun buildQuery(songName: String, artistName: String): String =
+        SearchUrls.encode(SearchUrls.joinTerms(songName, artistName))
 
     private fun buildBrowserIntent(context: Context, url: String, requestCode: Int): PendingIntent {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
