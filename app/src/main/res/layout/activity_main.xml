@@ -27,6 +27,14 @@
         android:layout_marginTop="4dp"
         android:text="設定" />
 
+    <Button
+        android:id="@+id/btn_now_playing"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="再生中の曲を検索" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
