@@ -2,14 +2,12 @@ package com.example.shazamextendsearch
 
 import android.Manifest
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvDebugLog: TextView
     private lateinit var btnPermission: Button
     private lateinit var btnSettings: Button
+    private lateinit var btnNowPlaying: Button
 
     private val notificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -44,12 +43,16 @@ class MainActivity : AppCompatActivity() {
         tvDebugLog    = findViewById(R.id.tv_debug_log)
         btnPermission = findViewById(R.id.btn_permission)
         btnSettings   = findViewById(R.id.btn_settings)
+        btnNowPlaying = findViewById(R.id.btn_now_playing)
 
         btnPermission.setOnClickListener {
-            startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+            startActivity(NotificationAccess.settingsIntent())
         }
         btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
+        }
+        btnNowPlaying.setOnClickListener {
+            startActivity(Intent(this, SearchSheetActivity::class.java))
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -88,16 +91,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updatePermissionStatus() {
-        val granted = isNotificationListenerEnabled()
+        val granted = NotificationAccess.isEnabled(this)
         tvStatus.text = if (granted) "✅ 通知アクセス：許可済み" else "❌ 通知アクセス：未許可"
         btnPermission.text = if (granted) "通知アクセス設定を開く" else "通知アクセスを許可する"
-    }
-
-    private fun isNotificationListenerEnabled(): Boolean {
-        val flat = Settings.Secure.getString(
-            contentResolver, "enabled_notification_listeners"
-        ) ?: return false
-        val cn = ComponentName(this, ShazamListenerService::class.java).flattenToString()
-        return flat.split(":").any { it == cn }
     }
 }
