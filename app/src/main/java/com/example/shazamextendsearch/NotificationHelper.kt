@@ -100,7 +100,7 @@ object NotificationHelper {
         val query = SearchUrls.joinTerms(songName, artistName)
         val builder = NotificationCompat.Builder(context, CHANNEL_SHORTCUT)
             .setSmallIcon(android.R.drawable.ic_menu_search)
-            .setSubText("Shazam検索ショートカット")
+            .setSubText("曲検索ショートカット")
             .setContentTitle(songName)
             .setContentText(artistName)
             .setLocalOnly(true)

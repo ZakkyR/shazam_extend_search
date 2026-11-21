@@ -53,7 +53,7 @@
             android:name=".ShareReceiverActivity"
             android:targetActivity=".SearchSheetActivity"
             android:exported="true"
-            android:label="Shazam検索ショートカット">
+            android:label="曲検索ショートカット">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
